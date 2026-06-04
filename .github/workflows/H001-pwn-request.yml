@@ -1,0 +1,20 @@
+# LAB VICTIM (H001) — pwn request. Checks out the PR head and runs an
+# attacker-controllable sink (build.sh) with the canary secret in the environment.
+# The detector flags this shape; the lab proves it actually executes.
+name: Lab PR Build
+
+on:
+  pull_request_target:
+    types: [opened, synchronize]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      LAB_SECRET: ${{ secrets.LAB_SECRET }}   # canary exposed to the runner env
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # attacker-controlled ref
+      - name: Build
+        run: bash build.sh                    # sink: the PR can rewrite build.sh
